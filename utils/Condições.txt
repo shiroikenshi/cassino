@@ -1,0 +1,23 @@
+Antigas condições:
+1. Cinco primeiras rodadas com chance de vitória aumentada (3 a 4 vitórias);
+2. Após as cinco primeiras rodadas fazer o jogador perder todas as rodadas;
+3. Aleatoriedade de visualização de lucro/perda:
+    Como forma de estudo, alguns usuários não vão conseguir visualizar a variável
+    de lucro/perda, que totaliza o lucro e perda somados;
+4. Aleatoriedade de cor dos resultados (entre colorido e branco):
+    Como forma de estudo, alguns jogadores terão cor verde/vermelha na variável resultado
+    e lucro/perda de acordo com o resultado, enquanto outros jogadores não teram essa
+    mudança de cor, as duas variáveis continuaram normais;
+5. Grupo de controle (linkado com tópico 3 e 4):
+    Como especificado no tópido 3 e 4, haveram situações aleatórias para definir os grupos
+    de controle, na visualização de estatística do item 6, deverá existir alguma informação
+    que especifique os itens se a aleatóriedade dos itens 3 e 4 aconteceram pro jogador;
+6. Aba de estatística contendo informações de rodadas do jogador.
+
+Novas condições:
+1. Ganhar 4 e perder 1 round nas 5 primeiras rodadas, depois ganhar 1 e perder 4 infinitamente;
+2. Limitar aposta pra 10 / Saldo 250;
+3. Ajustar desing responsivo;
+4. Três grupos, um sem cor. Um sem cor e sem ganho/perda. Um cor em ganho/perda e resultado;
+5. Nunca cair no verde (ou remover);
+6. Score (Resolvido pelo saldo total).

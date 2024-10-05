@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Cassino</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="container">
+        <h2>Bem-vindo ao Cassino!</h2>
+        </strong><input type="text" id="username" placeholder="Digite seu nome">
+        <button onclick="login()"><strong>Jogar</strong></button>
+        <button onclick="guestLogin()"><strong>Entrar como Convidado</strong></button>
+    </div>
+
+    <!-- Cabeçalho -->
+    <div class="header" style="display: none;" id="header">
+        <strong><span id="userDisplay"></span></strong>
+        <div class="nav-container">
+            <div class="nav-buttons" id="menu">
+                <button onclick="showGameScreen()"><strong>Roleta</strong></button>
+                <button onclick="showStats()"><strong>Estatísticas</strong></button>
+                <button id="logoutButton" onclick="logout()"><strong>Sair</strong></button>
+            </div>
+            <div class="dropdown-menu-icon" id="menuIcon" onclick="toggleDropdown()">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+        <div class="dropdown-content" id="dropdownMenu">
+            <button onclick="showGameScreen(); closeDropdown();"><strong>Roleta</strong></button>
+            <button onclick="showStats(); closeDropdown();"><strong>Estatísticas</strong></button>
+            <button id="logoutButton" onclick="logout(); closeDropdown();"><strong>Sair</strong></button>
+        </div>
+    </div>
+
+    <!-- Tela do Minigame -->
+    <div id="gameScreen" style="display: none;">
+        <div class="container wheel-betting-container">
+            <div class="wheel-container">
+                <div class="wheel" id="wheel">
+                    <!-- Adicionando números para cada fatia -->
+                    <div class="wheel-segment" style="transform: rotate(-11.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(11.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(33.75deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(56.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(78.75deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(101.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(123.75deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(146.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(168.75deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(191.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(213.75deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(236.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(258.75deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(281.25deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(303.75deg) translateY(-50%);">2x</div>
+                    <div class="wheel-segment" style="transform: rotate(326.25deg) translateY(-50%);">2x</div>
+
+                    <!-- Adicionando a bolinha dourada no centro da roleta -->
+                    <div class="center-ball"></div>
+                </div>
+                <!-- Adicionando o ponteiro da roleta -->
+                <div class="pointer"></div>
+            </div>
+            <div class="betting">
+                <div class="game-info">
+                    <div class="info-section saldo-rodadas">
+                        <p><strong>Saldo:</strong> R$<span id="balance"></span></p>
+                        <p><strong>Rodadas:</strong> <span id="currentRound">1</span></p>
+                    </div>
+                    <!-- Design 1 -->
+                    <div id="design1" class="info-section resultado-ganhoperda">
+                        <p><strong id="resultado-label">Resultado:</strong> <span id="roundResult">-</span></p>
+                        <p><strong id="ganhoPerda-label">Ganho/Perda:</strong> <span id="totalGainsLosses">0</span></p>
+                    </div>
+
+                    <!-- Design 2 (inicialmente oculto) -->
+                    <div id="design2" style="display: none;">
+                        <div class="info-section resultado" id="resultado-section">
+                            <p><strong id="resultado-label2">Resultado:</strong> <span id="roundResult2">-</span></p>
+                        </div>
+                        <div class="info-section ganho-perda" id="ganho-perda-section">
+                            <p><strong id="ganhoPerda-label2">Ganho/Perda:</strong> <span id="totalGainsLosses2">0</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <label for="colorSelect"><strong>Escolha a cor:</strong></label>
+                    <select id="colorSelect">
+                        <option value="preto">Preto</option>
+                        <option value="vermelho">Vermelho</option>
+                    </select>
+                    <input type="number" id="betAmount" min="1" placeholder="Aposta">
+                </div>
+                <button class="spin-button" onclick="spinWheel()"><strong>Girar a Roleta</strong></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Estatísticas -->
+    <div id="statsScreen" style="display: none;">
+        <div class="container">
+            <h2>Estatísticas do Jogador - Grupo <span id="groupNumber"></span></h2>
+            <div id="statsContainerWrapper">
+                <table id="statsTable">
+                    <tbody id="statsContainer">
+                        <!-- Dados da tabela serão inseridos aqui pelo script -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="button-group">
+                <button id="clearDataBtn">
+                    <i class="fas fa-trash"></i> <strong>Limpar Dados e Excluir Sessão</strong>
+                </button>
+                <button id="exportExcelBtn">
+                    <i class="fas fa-file-export"></i> <strong>Exportar para Excel</strong>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação -->
+    <div id="notification" class="notification">
+        <span id="notification-message"></span>
+        <div id="notification-progress" class="notification-progress"></div>
+    </div>
+  
+    <script src="js/script.js"></script>
+</body>
+</html>

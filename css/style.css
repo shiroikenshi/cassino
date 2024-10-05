@@ -1,0 +1,601 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Estilo do corpo da página */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #2e2e2e; /* Fundo escuro */
+  color: #f0f0f0; /* Texto claro para contraste */
+  overflow-x: hidden; /* Oculta qualquer conteúdo que ultrapasse a largura da tela */
+}
+
+/* Estilo do container geral */
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 1px 20px 20px 20px;
+  margin: 75px auto 0 auto;
+  background-color: #1c1c1c; /* Cor de fundo escura */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra mais pronunciada */
+  text-align: center;
+  box-sizing: border-box;
+  border-radius: 6px;
+}
+
+.wheel-betting-container {
+  display: block; /* Empilhamento padrão */
+  width: 100%;
+  max-width: 400px;
+  padding: 1px 20px 20px 20px;
+  margin: 75px auto 0 auto;
+  background-color: #1c1c1c; /* Cor de fundo escura */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra mais pronunciada */
+  text-align: center;
+  box-sizing: border-box;
+  border-radius: 6px;
+}
+
+/* Estilo específico para campos de texto */
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #444; /* Cor da borda escura */
+  border-radius: 6px;
+  background-color: #333; /* Fundo do input escuro */
+  color: #f0f0f0; /* Texto claro */
+  box-sizing: border-box;
+}
+
+/* Estilo específico para o campo de seleção de cor */
+#colorSelect {
+  width: 30%; /* Ajusta a largura para preencher o contêiner */
+  padding: 7px; /* Adiciona um padding confortável */
+  margin: 8px 0; /* Espaçamento vertical */
+  border: 1px solid #444; /* Borda escura */
+  border-radius: 6px; /* Bordas arredondadas */
+  background-color: #333; /* Fundo escuro para combinar com o tema */
+  color: #f0f0f0; /* Texto claro */
+  font-size: 14px; /* Tamanho da fonte ajustado */
+  box-sizing: border-box; /* Inclui padding e border na largura total */
+}
+
+/* Estilo específico para campos de número */
+input[type="number"] {
+  width: 20%; /* Ajusta a largura para preencher o contêiner */
+  padding: 8px;
+  margin: 8px 0;
+  border: 1px solid #444; /* Cor da borda escura */
+  border-radius: 5px;
+  background-color: #333; /* Fundo do input escuro */
+  color: #f0f0f0; /* Texto claro */
+  font-size: 14px; /* Tamanho da fonte ajustado */
+  box-sizing: border-box;
+  
+  /* Remover setas de incremento e decremento dos inputs numéricos */
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield; /* Outros navegadores baseados em Webkit */
+}
+
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none; /* Remove as setas no Webkit */
+  margin: 0; /* Remove a margem ao redor dos botões */
+}
+
+input[type="number"]::-moz-inner-spin-button, 
+input[type="number"]::-moz-outer-spin-button {
+  -moz-appearance: none; /* Remove as setas no Firefox */
+  margin: 0; /* Remove a margem ao redor dos botões */
+}
+
+/* Estilo do botão de girar a roleta */
+.spin-button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 0px;
+  background: linear-gradient(45deg, #ff0000, #b30000); /* Gradiente vermelho */
+  color: #fff; /* Texto branco */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px; /* Tamanho da fonte */
+  box-sizing: border-box;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transição suave */
+  position: relative;
+}
+
+.spin-button:hover {
+  background: linear-gradient(45deg, #ff4d4d, #990000); /* Gradiente mais claro */
+  transform: scale(1.01); /* Aumenta ligeiramente o tamanho do botão */
+}
+
+.spin-button:active {
+  background: linear-gradient(45deg, #cc0000, #660000); /* Gradiente mais escuro ao clicar */
+  box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.4); /* Efeito de inseto */
+}
+
+/* Animação especial para o botão */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(255, 0, 0, 0.5);
+  }
+}
+
+.spin-button:hover {
+  animation: pulse 1.5s infinite; /* Aplica a animação pulsante ao passar o mouse */
+}
+
+/* Estilo geral dos botões */
+button {
+  width: 100%; /* Ajusta a largura para preencher o contêiner */
+  padding: 12px;
+  margin-top: 20px;
+  background-color: #c0c0c0; /* Cor de botão prata */
+  color: #000; /* Texto escuro para contraste */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px; /* Tamanho da fonte ajustado */
+  box-sizing: border-box;
+}
+
+button:hover {
+  background-color: #a0a0a0; /* Cor de hover um pouco mais escura */
+}
+
+/* Estilo geral dos botões com ícones */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Espaçamento entre os botões */
+  margin-top: 20px; /* Espaçamento acima dos botões */
+}
+
+.button-group button {
+  display: flex;
+  align-items: center; /* Alinha o ícone e o texto verticalmente */
+  justify-content: center; /* Centraliza o ícone e o texto horizontalmente */
+  padding: 12px 20px; /* Ajuste o padding conforme necessário */
+  background-color: #c0c0c0; /* Cor de fundo dos botões */
+  color: #000; /* Cor do texto */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.button-group button i {
+  margin-right: 8px; /* Espaçamento entre o ícone e o texto */
+}
+
+.button-group button:hover {
+  background-color: #a0a0a0; /* Cor de hover um pouco mais escura */
+}
+
+/* Estilo do cabeçalho */
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #1c1c1c; /* Fundo preto para o cabeçalho */
+  color: #fff; /* Texto claro */
+  padding: 10px 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Distribui o espaço entre os itens */
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5); /* Sombra mais forte */
+  z-index: 1000; /* Garante que o cabeçalho esteja acima dos outros elementos */
+  height: 45px; /* Defina a altura conforme necessário */
+}
+
+/* Estilo do texto "Jogando como..." */
+.header span {
+  font-size: 20px;
+  text-align: left; /* Alinha o texto à esquerda */
+}
+
+/* Desabilitando seleção do userDisplay */
+#userDisplay {
+  user-select: none; /* Impede a seleção de texto */
+  cursor: pointer; /* Altera o cursor para indicar que o elemento é clicável */
+}
+
+/* Ajuste dos botões de navegação */
+.nav-container {
+  display: flex;
+  align-items: center; /* Alinha os botões verticalmente ao centro */
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+/* Estilo geral dos botões do cabeçalho */
+.nav-buttons button {
+  background-color: transparent; /* Remove cor de fundo */
+  color: #fff; /* Cor do texto */
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: auto;
+}
+
+.nav-buttons button:hover {
+  text-decoration: underline; /* Adiciona sublinhado ao passar o mouse */
+}
+
+/* Estilo específico para informações na tela do jogo */
+.game-info {
+  display: block;
+  width: 100%;
+}
+
+.betting {
+  width: 100%;
+}
+
+p {
+  padding: 0px;
+  margin: 10px;
+}
+
+.saldo-rodadas {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.saldo-rodadas p {
+  width: 50%; /* Cada elemento ocupa 50% da largura */
+  text-align: center; /* Alinha o texto ao centro dentro de cada metade */
+}
+
+.resultado-ganhoperda p {
+  font-size: 16px;
+}
+
+.info-section {
+  width: 100%; /* Garante que o elemento não ultrapasse a largura do contêiner */
+  background-color: #2e2e2e;
+  padding: 2px;
+  margin: 10px 0; /* Apenas margens verticais */
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.green-background {
+  background-color: #003300; /* Verde ainda mais escuro */
+}
+
+.red-background {
+  background-color: #4B0000; /* Vermelho ainda mais escuro */
+}
+
+/* Estilo para o container da roleta */
+.wheel-container {
+  position: relative;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 280px;
+  box-sizing: border-box;
+}
+
+/* Estilo para o ponteiro */
+.pointer {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 25px solid #ffd700; /* Cor do ponteiro dourado */
+  z-index: 10;
+}
+
+.wheel {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 4px solid #ffd700;
+  background: conic-gradient(
+        #000000 0% 6.25%,
+        #ff0000 6.25% 12.5%,
+        #000000 12.5% 18.75%,
+        #ff0000 18.75% 25%,
+        #000000 25% 31.25%,
+        #ff0000 31.25% 37.5%,
+        #000000 37.5% 43.75%,
+        #ff0000 43.75% 50%,
+        #000000 50% 56.25%,
+        #ff0000 56.25% 62.5%,
+        #000000 62.5% 68.75%,
+        #ff0000 68.75% 75%,
+        #000000 75% 81.25%,
+        #ff0000 81.25% 87.5%,
+        #000000 87.5% 93.75%,
+        #ff0000 93.75% 100%
+    );
+  margin: 20px auto;
+  transition: transform 3s cubic-bezier(0.42, 0, 0.58, 1); /* Aceleração e desaceleração natural */
+  position: relative; /* Garantir que os números sejam posicionados corretamente */
+  overflow: hidden;
+}
+
+/* Estilo para os números nas fatias da roleta */
+.wheel-segment {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.7);
+  transform-origin: center center;
+}
+
+/* Estilo para a bolinha dourada no centro da roleta */
+.center-ball {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 25px; /* Ajuste o tamanho conforme necessário */
+  height: 25px; /* Ajuste o tamanho conforme necessário */
+  background-color: #ffd700; /* Cor dourada */
+  text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1; /* Certifique-se de que esteja acima das fatias da roleta */
+}
+
+/* Estilo do contêiner da tabela de estatísticas */
+#statsScreen .container {
+  width: 100%;
+  max-width: 620px; /* Mantém a largura máxima */
+  padding: 1px 20px 20px 20px;
+  margin: 75px auto 50px auto; /* Margem para centralizar e espaçar do topo */
+  background-color: #1c1c1c; /* Cor de fundo escura */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra para destaque */
+  text-align: center;
+  box-sizing: border-box;
+  overflow: hidden; /* Garante que a tabela não ultrapasse o contêiner */
+}
+
+/* Estilo para o contêiner da tabela com rolagem */
+#statsContainerWrapper {
+  overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
+  overflow-y: auto; /* Adiciona rolagem vertical se necessário */
+  margin: 0 auto; /* Centraliza o contêiner da tabela dentro do contêiner principal */
+}
+
+/* Estilo da tabela dentro do contêiner com rolagem */
+#statsTable {
+  width: 100%; /* Ajusta a largura da tabela para preencher o contêiner com rolagem */
+  border-collapse: collapse;
+}
+
+#statsTable th, #statsTable td {
+  border: 0px solid #444; /* Cor da borda escura */
+  padding: 10px;
+  text-align: center;
+}
+
+#statsTable th {
+  background-color: #333; /* Fundo escuro para o cabeçalho */
+  color: #fff; /* Texto claro para contraste */
+}
+
+#statsTable td {
+  color: #f0f0f0; /* Texto claro */
+}
+
+#statsTable .win {
+  background-color: rgba(0, 255, 0, 0.2); /* Verde com transparência */
+}
+
+#statsTable .loss {
+  background-color: rgba(255, 0, 0, 0.2); /* Vermelho com transparência */
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #333; /* Cor de fundo do tema escuro */
+  color: #fff;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 200px;
+  opacity: 0; /* Inicialmente invisível */
+  transition: opacity 0.3s ease;
+  display: none;
+  overflow: hidden;
+}
+
+.notification.show {
+  opacity: 1; /* Torna a notificação visível quando a classe 'show' é adicionada */
+}
+
+.notification.hide {
+  opacity: 0; /* Torna a notificação invisível quando a classe 'hide' é adicionada */
+}
+
+.notification .message {
+  flex: 1;
+}
+
+.notification .progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #555;
+  border-radius: 0 0 5px 5px;
+  overflow: hidden;
+}
+
+.notification .progress-bar {
+  height: 100%;
+  width: 100%;
+  transition: width 2s linear; /* Animação da largura */
+}
+
+/* Esconde o dropdown e o ícone de menu por padrão */
+.dropdown-content {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: #1c1c1c;
+  width: 50%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content button {
+  padding: 12px 16px;
+  text-align: left;
+  background-color: #1c1c1c;
+  border: none;
+  width: 100%;
+  color: white;
+}
+
+.dropdown-content button:hover {
+  background-color: #333;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Ícone de menu (hambúrguer) */
+.dropdown-menu-icon {
+  display: none;
+  cursor: pointer;
+}
+
+.dropdown-menu-icon i {
+  color: white;
+  font-size: 24px;
+}
+
+/* Responsividade */
+@media (max-width: 570px) {
+  .nav-buttons {
+    display: none; /* Esconde o menu original */
+  }
+
+  .dropdown-menu-icon {
+      display: block; /* Mostra o ícone de menu */
+  }
+
+  .dropdown-content {
+      display: none;
+      flex-direction: column;
+  }
+
+  .dropdown-content.active {
+      display: flex; /* Mostra o dropdown quando ativo */
+  }
+}
+
+@media (max-height: 675px) and (max-width: 768px) {
+  .wheel {
+    max-width: 85%;
+  }
+  .wheel-segment {
+    font-size: 14px;
+  }
+  p {
+    margin: 5px;
+  }
+  .wheel-betting-container {
+    padding: 1px 20px 10px 20px;
+  }
+}
+
+/* Media Query para telas maiores */
+@media (min-width: 768px) {
+  .wheel-betting-container {
+    display: flex; /* Alinha a roleta e apostas lado a lado */
+    flex-direction: row; /* Deixa horizontal */
+    max-width: 800px; /* Aumenta a largura máxima */
+    justify-content: space-between; /* Distribui o espaço */
+    align-items: center; /* Centraliza verticalmente */
+  }
+
+  .betting {
+    width: 45%; /* Cada lado ocupa aproximadamente metade do container */
+    margin: 0; /* Remove margens */
+  }
+
+  .wheel-container {
+    max-width: 100%;
+    display: flex;
+    justify-content: center; /* Centraliza a roleta horizontalmente */
+    width: 55%; /* Cada lado ocupa aproximadamente metade do container */
+    margin: 0; /* Remove margens */
+  }
+  
+  .wheel {
+    width: 100%;
+    max-width: 100%;
+    margin: 20px 20px 0 0;
+  }
+
+  .pointer {
+    top: 15px;
+    left: 47.6%;
+  }
+
+  .resultado-ganhoperda p {
+    font-size: 24px;
+  }
+
+  .resultado p {
+    font-size: 24px;
+  }
+
+  .ganho-perda p {
+    font-size: 24px;
+  }
+
+  .info-section {
+    font-size: 18px;
+  }
+}
