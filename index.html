@@ -9,11 +9,11 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
 </head>
-<body>
+<body id="body">
     <!-- Tela de Login -->
     <div id="loginScreen" class="container">
         <h2>Bem-vindo ao Cassino!</h2>
-        </strong><input type="text" id="username" placeholder="Digite seu nome">
+        </strong><input type="text" id="username" placeholder="Digite seu nickname">
         <button onclick="login()"><strong>Jogar</strong></button>
         <button onclick="guestLogin()"><strong>Entrar como Convidado</strong></button>
     </div>
@@ -21,21 +21,6 @@
     <!-- Cabeçalho -->
     <div class="header" style="display: none;" id="header">
         <strong><span id="userDisplay"></span></strong>
-        <div class="nav-container">
-            <div class="nav-buttons" id="menu">
-                <button onclick="showGameScreen()"><strong>Roleta</strong></button>
-                <button onclick="showStats()"><strong>Estatísticas</strong></button>
-                <button id="logoutButton" onclick="logout()"><strong>Sair</strong></button>
-            </div>
-            <div class="dropdown-menu-icon" id="menuIcon" onclick="toggleDropdown()">
-                <i class="fas fa-bars"></i>
-            </div>
-        </div>
-        <div class="dropdown-content" id="dropdownMenu">
-            <button onclick="showGameScreen(); closeDropdown();"><strong>Roleta</strong></button>
-            <button onclick="showStats(); closeDropdown();"><strong>Estatísticas</strong></button>
-            <button id="logoutButton" onclick="logout(); closeDropdown();"><strong>Sair</strong></button>
-        </div>
     </div>
 
     <!-- Tela do Minigame -->
@@ -98,6 +83,7 @@
                     <input type="number" id="betAmount" min="1" placeholder="Aposta">
                 </div>
                 <button class="spin-button" onclick="spinWheel()"><strong>Girar a Roleta</strong></button>
+                <button class="done-button" onclick="showStats()"><strong>Encerrar Jogo</strong></button>
             </div>
         </div>
     </div>
@@ -105,7 +91,8 @@
     <!-- Tela de Estatísticas -->
     <div id="statsScreen" style="display: none;">
         <div class="container">
-            <h2>Estatísticas do Jogador - Grupo <span id="groupNumber"></span></h2>
+            <h1>JOGO ENCERRADO</h1>
+            <h3>Histórico de Jogadas - Grupo <span id="groupNumber"></span></h3>
             <div id="statsContainerWrapper">
                 <table id="statsTable">
                     <tbody id="statsContainer">

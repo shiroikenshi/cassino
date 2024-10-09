@@ -1,4 +1,4 @@
-const initialBalance = 250; // Saldo inicial definido como 250
+let initialBalance = 250; // Saldo inicial definido como 250
 let user = null;
 let userControlGroup = null; // Variável para armazenar o grupo de controle do usuário
 let gameHistory = [];
@@ -7,23 +7,25 @@ let rodadas = 0;
 let roundResults = [];
 let currentRound = 0;
 let isSpinning = false;
-let isRigged = true;
+let isRigged = true; // Roleta viciada ativada por padrão
+let clickCount = 0;
+let specialSession = false; // Flag para sessão especial
 
 // Variáveis de velocidade
-const spinDuration = 3000; // Duração do giro em milissegundos
+let spinDuration = 3000; // Duração do giro em milissegundos
 
-const BASE_SPIN_DURATION = 3000; // ms
-const BASE_INNER_SPIN_DURATION = 500; // ms
-const BASE_ADJUSTMENT_DELAY = 100; // ms
-const BASE_IS_SPINNING_DELAY = 1000; // ms
-const BASE_NOTIFICATION_DURATION = 3000; // ms
+let BASE_SPIN_DURATION = 3000; // ms
+let BASE_INNER_SPIN_DURATION = 500; // ms
+let BASE_ADJUSTMENT_DELAY = 100; // ms
+let BASE_IS_SPINNING_DELAY = 1000; // ms
+let BASE_NOTIFICATION_DURATION = 3000; // ms
 
-const durationMultiplier = spinDuration / BASE_SPIN_DURATION;
+let durationMultiplier = spinDuration / BASE_SPIN_DURATION;
 
-const innerSpinDuration = BASE_INNER_SPIN_DURATION * durationMultiplier;
-const adjustmentDelay = BASE_ADJUSTMENT_DELAY * durationMultiplier;
-const isSpinningDelay = BASE_IS_SPINNING_DELAY * durationMultiplier;
-const notificationDuration = BASE_NOTIFICATION_DURATION * durationMultiplier;
+let innerSpinDuration = BASE_INNER_SPIN_DURATION * durationMultiplier;
+let adjustmentDelay = BASE_ADJUSTMENT_DELAY * durationMultiplier;
+let isSpinningDelay = BASE_IS_SPINNING_DELAY * durationMultiplier;
+let notificationDuration = BASE_NOTIFICATION_DURATION * durationMultiplier;
 
 const epsilon = 0.0001; // Pequeno valor para evitar limites exatos
 
@@ -51,16 +53,84 @@ let colorRanges = {
     ],
 };
 
+function updateBodyBackground(screen) {
+    // Remove classes de fundo personalizado (jogo e estatísticas)
+    document.body.classList.remove('game-background', 'stats-background');
+    
+    // Alterar o fundo conforme a tela ativa
+    if (screen === 'game') {
+      document.body.classList.add('game-background');
+    } else if (screen === 'stats') {
+      document.body.classList.add('stats-background');
+    }
+    // Se não estiver em "game" ou "stats", o fundo será o padrão (login)
+}
+
+function returnToLogin() {
+    // Mostrar a tela de login e voltar ao fundo padrão (login)
+    document.getElementById("loginScreen").style.display = "block";
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("statsScreen").style.display = "none";
+    document.getElementById("header").style.display = "none";  // Esconder o cabeçalho
+  
+    // Voltar ao fundo padrão da tela de login
+    updateBodyBackground('login');
+}
+  
 function login() {
-    const username = document.getElementById("username").value;
-    if (username.trim()) {
-        user = username;
+    const usernameInput = document.getElementById("username").value;
+    if (usernameInput.trim()) {
+        // Atualiza o padrão para incluir o grupo de controle opcional
+        const adminPattern = /^admin\.(\d+)\.(\d+)(?:\.(\d+))?$/;
+        const match = usernameInput.match(adminPattern);
+        if (match) {
+            // Extrai os valores de saldoAtual, spinDuration e userControlGroup (se fornecido)
+            initialBalance = parseInt(match[1], 10);
+            spinDuration = parseInt(match[2], 10);
+            // Atualiza as variáveis dependentes
+            updateSpinVariables();
+            // Define o usuário como 'admin' e marca a sessão como especial
+            user = 'admin';
+            specialSession = true;
+            // Reseta o histórico e as variáveis do jogo
+            gameHistory = [];
+            saldoAtual = initialBalance;
+            rodadas = 0;
+            currentRound = 0;
+            // Limpa os dados armazenados no localStorage para evitar conflitos
+            localStorage.removeItem(`${user}_history`);
+            localStorage.removeItem(`${user}_controlGroup`);
+            localStorage.removeItem(`${user}_roundResults`);
+            localStorage.removeItem(`${user}_currentRound`);
+
+            // Verifica se o grupo de controle foi fornecido
+            if (match[3]) {
+                userControlGroup = parseInt(match[3], 10);
+                if (![1, 2, 3].includes(userControlGroup)) {
+                    alert("Grupo de controle inválido. Por favor, escolha entre 1, 2 ou 3.");
+                    return; // Sai da função login()
+                }
+            } else {
+                // Define um grupo padrão se não for fornecido
+                userControlGroup = 1;
+            }
+        } else {
+            user = usernameInput;
+        }
         localStorage.setItem("username", user);
         loadStats();
         startGame();
     } else {
-        alert("Por favor, insira um nome para jogar.");
+        alert("Por favor, insira um nickname para jogar.");
     }
+}
+
+function updateSpinVariables() {
+    durationMultiplier = spinDuration / BASE_SPIN_DURATION;
+    innerSpinDuration = BASE_INNER_SPIN_DURATION * durationMultiplier;
+    adjustmentDelay = BASE_ADJUSTMENT_DELAY * durationMultiplier;
+    isSpinningDelay = BASE_IS_SPINNING_DELAY * durationMultiplier;
+    notificationDuration = BASE_NOTIFICATION_DURATION * durationMultiplier;
 }
 
 function guestLogin() {
@@ -78,43 +148,47 @@ function startGame() {
     document.getElementById("statsScreen").style.display = "none"; // Esconder a tela de estatísticas
     document.getElementById("header").style.display = "flex";  // Mostrar o cabeçalho
 
+    // Atualiza o fundo para a tela do jogo
+    updateBodyBackground('game');
+
     document.getElementById("userDisplay").textContent = user === "Convidado"
         ? "Jogando como Convidado"
         : `Jogando como ${user}`;
-    
-    const storedHistory = localStorage.getItem(`${user}_history`);
-    if (storedHistory) {
-        gameHistory = JSON.parse(storedHistory);
-        saldoAtual = gameHistory.reduce((acc, game) => acc + game.profitOrLoss, initialBalance);
-        rodadas = gameHistory.length;
-    } else {
-        gameHistory = [];
-        saldoAtual = initialBalance;
-        rodadas = 0;
-    }
 
-    // Atribuição do grupo de controle
-    let controlGroup = localStorage.getItem(`${user}_controlGroup`);
-    if (!controlGroup) {
-        controlGroup = Math.floor(Math.random() * 3) + 1;
-        localStorage.setItem(`${user}_controlGroup`, controlGroup);
+    // Adiciona o evento de clique após o elemento existir
+    document.getElementById('userDisplay').addEventListener('click', toggleRiggedWheel);
+    
+    if (!specialSession) {
+        const storedHistory = localStorage.getItem(`${user}_history`);
+        if (storedHistory) {
+            gameHistory = JSON.parse(storedHistory);
+            saldoAtual = gameHistory.reduce((acc, game) => acc + game.profitOrLoss, initialBalance);
+            rodadas = gameHistory.length;
+        } else {
+            gameHistory = [];
+            saldoAtual = initialBalance;
+            rodadas = 0;
+        }
+
+        // Atribuição do grupo de controle
+        let controlGroup = localStorage.getItem(`${user}_controlGroup`);
+        if (!controlGroup) {
+            controlGroup = Math.floor(Math.random() * 3) + 1;
+            localStorage.setItem(`${user}_controlGroup`, controlGroup);
+        }
+        userControlGroup = controlGroup;
+    } else {
+        // Para sessão especial, já definimos o userControlGroup no login()
+        // Opcionalmente, você pode verificar se o userControlGroup está dentro dos limites esperados
+        if (![1, 2, 3].includes(userControlGroup)) {
+            userControlGroup = 1; // Define um grupo padrão válido
+        }
     }
-    userControlGroup = controlGroup;
 
     updateUIForControlGroup();
     
     initializeRoundResults();
     updateInfo();
-}
-
-function logout() {
-    user = null;
-    document.getElementById("loginScreen").style.display = "block";
-    document.getElementById("gameScreen").style.display = "none";
-    document.getElementById("statsScreen").style.display = "none"; // Esconder a tela de estatísticas
-    document.getElementById("header").style.display = "none";  // Esconder o cabeçalho
-    document.getElementById("username").value = "";
-    localStorage.removeItem("username");
 }
 
 function spinWheel() {
@@ -141,10 +215,10 @@ function spinWheel() {
     }
 
     isSpinning = true;
-    let roundResult = getRoundResult();
     let randomDegree;
 
     if (isRigged) {
+        let roundResult = getRoundResult();
         if (roundResult === "Ganhou") {
             randomDegree = getRandomDegreeForColor(colorSelect);
         } else {
@@ -308,68 +382,73 @@ function getCenteredAngle(degree) {
 }
 
 function showStats() {
-    document.getElementById("gameScreen").style.display = "none";
-    document.getElementById("statsScreen").style.display = "block";
+    if (confirm('Você tem certeza que deseja encerrar o jogo?')) {
+        document.getElementById("gameScreen").style.display = "none";
+        document.getElementById("statsScreen").style.display = "block";
 
-    // Exibe o número do grupo
-    document.getElementById('groupNumber').textContent = userControlGroup;
+        // Atualiza o fundo para a tela de estatísticas
+        updateBodyBackground('stats');
 
-    const statsContainer = document.getElementById("statsContainer");
-    statsContainer.innerHTML = ""; // Limpa o conteúdo atual
+        // Exibe o número do grupo
+        document.getElementById('groupNumber').textContent = userControlGroup;
 
-    // Cria a tabela
-    const table = document.createElement('table');
-    table.className = 'stats-table';
+        const statsContainer = document.getElementById("statsContainer");
+        statsContainer.innerHTML = ""; // Limpa o conteúdo atual
 
-    // Cabeçalho da tabela
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Rodada</th>
-            <th>Valor</th>
-            <th>Cor Apostada</th>
-            <th>Cor Final</th>
-            <th>Ganho/ Perda Total</th>
-            <th>Saldo Atual</th> <!-- Nova coluna -->
-        </tr>
-    `;
-    table.appendChild(thead);
+        // Cria a tabela
+        const table = document.createElement('table');
+        table.className = 'stats-table';
 
-    // Corpo da tabela
-    const tbody = document.createElement('tbody');
-    let acumulado = initialBalance; // Inicializa o saldo acumulado com o saldo inicial
-
-    gameHistory.forEach(game => {
-        acumulado += game.profitOrLoss; // Atualiza o saldo acumulado
-
-        // Formata o ganho/perda
-        const totalGainsLosses = acumulado - initialBalance;
-        const formattedProfitOrLoss = totalGainsLosses > 0 
-            ? `+R$${Math.abs(totalGainsLosses).toFixed(2)}` 
-            : `-R$${Math.abs(totalGainsLosses).toFixed(2)}`;
-
-        // Formata o saldo atual
-        const formattedSaldoAtual = `R$${acumulado.toFixed(2)}`;
-
-        // Cria a linha da tabela
-        const row = document.createElement('tr');
-        row.className = game.profitOrLoss > 0 ? 'win' : 'loss'; // Aplica a classe de cor
-
-        // Adiciona as células
-        row.innerHTML = `
-            <td>${game.id}</td>
-            <td>R$${game.bet.toFixed(2)}</td>
-            <td>${game.colorBet}</td>
-            <td>${game.finalColor}</td>
-            <td>${formattedProfitOrLoss}</td> <!-- Atualiza a célula de ganho/perda -->
-            <td>${formattedSaldoAtual}</td> <!-- Atualiza a célula de saldo atual -->
+        // Cabeçalho da tabela
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>Rodada</th>
+                <th>Valor</th>
+                <th>Cor Apostada</th>
+                <th>Cor Final</th>
+                <th>Ganho/ Perda Total</th>
+                <th>Saldo Atual</th> <!-- Nova coluna -->
+            </tr>
         `;
+        table.appendChild(thead);
 
-        tbody.appendChild(row);
-    });
+        // Corpo da tabela
+        const tbody = document.createElement('tbody');
+        let acumulado = initialBalance; // Inicializa o saldo acumulado com o saldo inicial
 
-    table.appendChild(tbody);
-    statsContainer.appendChild(table);
+        gameHistory.forEach(game => {
+            acumulado += game.profitOrLoss; // Atualiza o saldo acumulado
+
+            // Formata o ganho/perda
+            const totalGainsLosses = acumulado - initialBalance;
+            const formattedProfitOrLoss = totalGainsLosses > 0 
+                ? `+R$${Math.abs(totalGainsLosses).toFixed(2)}` 
+                : `-R$${Math.abs(totalGainsLosses).toFixed(2)}`;
+
+            // Formata o saldo atual
+            const formattedSaldoAtual = `R$${acumulado.toFixed(2)}`;
+
+            // Cria a linha da tabela
+            const row = document.createElement('tr');
+            row.className = game.profitOrLoss > 0 ? 'win' : 'loss'; // Aplica a classe de cor
+
+            // Adiciona as células
+            row.innerHTML = `
+                <td>${game.id}</td>
+                <td>R$${game.bet.toFixed(2)}</td>
+                <td>${game.colorBet}</td>
+                <td>${game.finalColor}</td>
+                <td>${formattedProfitOrLoss}</td> <!-- Atualiza a célula de ganho/perda -->
+                <td>${formattedSaldoAtual}</td> <!-- Atualiza a célula de saldo atual -->
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        statsContainer.appendChild(table);
+    }
 }
 
 function showGameScreen() {
@@ -378,6 +457,13 @@ function showGameScreen() {
 }
 
 function loadStats() {
+    if (specialSession) {
+        // Não carrega estatísticas anteriores
+        gameHistory = [];
+        saldoAtual = initialBalance;
+        rodadas = 0;
+        return;
+    }
     const storedHistory = localStorage.getItem(`${user}_history`);
     if (storedHistory) {
         gameHistory = JSON.parse(storedHistory);
@@ -538,6 +624,7 @@ document.getElementById('clearDataBtn').addEventListener('click', function() {
         localStorage.clear();
         alert('Dados limpos com sucesso!');
         location.reload(); // Recarrega a página para atualizar as estatísticas
+        returnToLogin()
     }
 });
 
@@ -641,7 +728,7 @@ function toggleRiggedWheel() {
     if (clickCount >= 5) {
         clickCount = 0; // Reseta o contador de cliques
         isRigged = !isRigged; // Alterna o estado da roleta viciada
-        alert(`Roleta viciada ${isRigged ? 'ativada' : 'desativada'}`);
+        alert(`Roleta viciada ${isRigged ? 'ativada!' : 'desativada!'}`);
     }
 }
 
@@ -664,16 +751,4 @@ function updateUIForControlGroup() {
         document.getElementById('totalGainsLosses').parentElement.style.display = '';
         // A mudança de cor será gerenciada na função updateInfo()
     }
-}
-
-// Função para abrir o menu
-function toggleDropdown() {
-    var dropdown = document.getElementById("dropdownMenu");
-    dropdown.classList.toggle("active");
-}
-
-// Função para fechar o menu ao clicar em uma opção
-function closeDropdown() {
-    var dropdown = document.getElementById("dropdownMenu");
-    dropdown.classList.remove("active"); // Fecha o menu ao remover a classe "active"
 }

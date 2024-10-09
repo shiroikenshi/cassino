@@ -9,9 +9,37 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #2e2e2e; /* Fundo escuro */
-  color: #f0f0f0; /* Texto claro para contraste */
-  overflow-x: hidden; /* Oculta qualquer conteúdo que ultrapasse a largura da tela */
+  color: #fff;
+  background-image: url('../img/fundo1.png'); /* Fundo padrão */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body.game-background {
+  background-image: url('../img/fundo2.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center -30px;
+}
+
+body.stats-background {
+  background-image: url('../img/fundo3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center -30px;
+}
+
+/* Certifique-se de que o #statsScreen permita a rolagem */
+#statsScreen {
+  overflow-y: auto;
+  /* Se necessário, defina uma altura máxima */
+  /* max-height: calc(100vh - altura_do_cabeçalho); */
 }
 
 /* Estilo do container geral */
@@ -120,6 +148,11 @@ input[type="number"]::-moz-outer-spin-button {
   box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.4); /* Efeito de inseto */
 }
 
+.done-button{
+  margin-top: 40px;
+  background-color: #797979;
+}
+
 /* Animação especial para o botão */
 @keyframes pulse {
   0% {
@@ -141,7 +174,7 @@ input[type="number"]::-moz-outer-spin-button {
 button {
   width: 100%; /* Ajusta a largura para preencher o contêiner */
   padding: 12px;
-  margin-top: 20px;
+  margin-top: 10px;
   background-color: #c0c0c0; /* Cor de botão prata */
   color: #000; /* Texto escuro para contraste */
   border: none;
@@ -514,6 +547,14 @@ p {
   font-size: 24px;
 }
 
+/* Removido o estilo dos botões de navegação e dropdown */
+.nav-container,
+.nav-buttons,
+.dropdown-content,
+.dropdown-menu-icon {
+    display: none;
+}
+
 /* Responsividade */
 @media (max-width: 570px) {
   .nav-buttons {
@@ -534,7 +575,7 @@ p {
   }
 }
 
-@media (max-height: 675px) and (max-width: 768px) {
+@media (max-height: 740px) and (max-width: 768px) {
   .wheel {
     max-width: 85%;
   }
