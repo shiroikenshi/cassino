@@ -10,6 +10,7 @@ body {
   margin: 0;
   padding: 0;
   color: #fff;
+  background-color: #1c1c1c;
   background-image: url('../img/fundo1.png'); /* Fundo padrão */
   background-size: cover;
   background-repeat: no-repeat;
