@@ -19,6 +19,7 @@ body {
 }
 
 body.game-background {
+  background-color: #1c1c1c;
   background-image: url('../img/fundo2.png');
   background-size: cover;
   background-position: center;
@@ -28,6 +29,7 @@ body.game-background {
 }
 
 body.stats-background {
+  background-color: #1c1c1c;
   background-image: url('../img/fundo3.png');
   background-size: cover;
   background-position: center;
