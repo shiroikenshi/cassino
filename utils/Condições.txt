@@ -21,3 +21,17 @@ Novas condições:
 4. Três grupos, um sem cor. Um sem cor e sem ganho/perda. Um cor em ganho/perda e resultado;
 5. Nunca cair no verde (ou remover);
 6. Score (Resolvido pelo saldo total).
+
+Novas condições:
+1. Mudanças nos grupos;
+	- Remover o grupo 2;
+	- Manter o grupo 1 e 3 (porém o 3 vira o grupo 4 agora)
+	- Adicionar os grupos 2 e 3, ambos os grupos são parecidos com o 4, porém o grupo 2, a cor
+	só muda caso ganho/perda fique negativo (vermelhor) e o grupo 3 apenas caso fique positivo (verde)
+2. Ganhar 3 e perder 7 em lote;
+	- anteriormente as cinco primeiras rodadas do usuário eram 4 vitórias e 1 derrota, e depois
+	1 vitória e 4 derrotas de 5 em 5, de forma embaralhada, agora quero que de forma fixa, desde o começo
+	ele perca 7 e vença três, também de forma embaralhada
+3. Mandar excel por email;
+	- Em vez do botão de baixar excel, queremos que o arquivo excel gerado seja mandado para um email
+4. Mudanças nas labels e tentar deixar valor da aposta mais intuitivo.

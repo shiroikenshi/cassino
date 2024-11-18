@@ -106,8 +106,8 @@ function login() {
             // Verifica se o grupo de controle foi fornecido
             if (match[3]) {
                 userControlGroup = parseInt(match[3], 10);
-                if (![1, 2, 3].includes(userControlGroup)) {
-                    alert("Grupo de controle inválido. Por favor, escolha entre 1, 2 ou 3.");
+                if (![1, 2, 3, 4].includes(userControlGroup)) {
+                    alert("Grupo de controle inválido. Por favor, escolha entre 1, 2, 3 ou 4.");
                     return; // Sai da função login()
                 }
             } else {
@@ -173,20 +173,18 @@ function startGame() {
         // Atribuição do grupo de controle
         let controlGroup = localStorage.getItem(`${user}_controlGroup`);
         if (!controlGroup) {
-            controlGroup = Math.floor(Math.random() * 3) + 1;
+            controlGroup = Math.floor(Math.random() * 4) + 1;
             localStorage.setItem(`${user}_controlGroup`, controlGroup);
         }
         userControlGroup = controlGroup;
     } else {
         // Para sessão especial, já definimos o userControlGroup no login()
         // Opcionalmente, você pode verificar se o userControlGroup está dentro dos limites esperados
-        if (![1, 2, 3].includes(userControlGroup)) {
+        if (![1, 2, 3, 4].includes(userControlGroup)) {
             userControlGroup = 1; // Define um grupo padrão válido
         }
     }
 
-    updateUIForControlGroup();
-    
     initializeRoundResults();
     updateInfo();
 }
@@ -307,12 +305,12 @@ function initializeRoundResults() {
     if (storedRoundResults) {
         roundResults = JSON.parse(storedRoundResults);
     } else {
-        // Se não houver roundResults armazenados, inicializa conforme a lógica do jogo
+        // Inicializa com lotes de 10 rodadas: 3 vitórias e 7 derrotas
         roundResults = [];
 
-        // Primeiras 5 rodadas com 4 vitórias e 1 derrota
-        const initialResults = Array(5).fill("Perdeu");
-        for (let i = 0; i < 4; i++) {
+        // Lotes de 10 rodadas: 3 vitórias e 7 derrotas
+        const initialResults = Array(10).fill("Perdeu");
+        for (let i = 0; i < 3; i++) {
             initialResults[i] = "Ganhou";
         }
         shuffleArray(initialResults);
@@ -336,17 +334,14 @@ function getRoundResult() {
     // console.log(`Round Results Length: ${roundResults.length}`);
     // console.log(`Round Results:`, roundResults);
     if (currentRound >= roundResults.length) {
-        // Verifica se é o primeiro lote de resultados
-        if (currentRound < 5) {
-            // Primeiro lote já deve ter sido gerado em initializeRoundResults()
-        } else {
-            // Gera novos resultados em lotes de 5 rodadas com 1 vitória e 4 derrotas
-            const newResults = Array(5).fill("Perdeu");
-            newResults[Math.floor(Math.random() * 5)] = "Ganhou"; // Define a posição da vitória
-            shuffleArray(newResults);
-            roundResults = roundResults.concat(newResults);
-            localStorage.setItem(`${user}_roundResults`, JSON.stringify(roundResults));
+        // Gera novos lotes de 10 rodadas com 3 vitórias e 7 derrotas
+        const newResults = Array(10).fill("Perdeu");
+        for (let i = 0; i < 3; i++) {
+            newResults[i] = "Ganhou";
         }
+        shuffleArray(newResults);
+        roundResults = roundResults.concat(newResults);
+        localStorage.setItem(`${user}_roundResults`, JSON.stringify(roundResults));
     }
     return roundResults[currentRound];
 }
@@ -477,30 +472,15 @@ function loadStats() {
     updateInfo();
 }
 
-function updateInfo(applyColorToLabels = true, designOption = 2, applyBackgroundToSections = true) {
-    // Update balance and rounds (comum para ambos designs)
+function updateInfo(applyColorToLabels = true, applyBackgroundToSections = true) {
+    // Atualiza ganho e rounds
     document.getElementById('balance').textContent = saldoAtual.toFixed(2);
     document.getElementById('currentRound').textContent = rodadas;
 
-    // Check for Group 1 restrictions (no access to design 2 or 'Ganho/Perda')
-    if (userControlGroup == 1 && designOption === 2) {
-        designOption = 1; // Force to design 1 for Group 1
-    }
-
-    // Alternar entre designs (assegure que 'Ganho/Perda' seja escondido para Grupo 1)
-    if (designOption === 1) {
-        document.getElementById('design1').style.display = 'block';
-        document.getElementById('design2').style.display = 'none';
-    } else if (designOption === 2 && userControlGroup !== 1) {
-        document.getElementById('design1').style.display = 'none';
-        document.getElementById('design2').style.display = 'block';
-    }
-
-    // Obter o último resultado do jogo
     let lastGame = gameHistory[gameHistory.length - 1];
-    let formattedRoundResult = "-"; // Inicialmente sem resultado
-    let roundResultColor = ''; // Cor neutra antes do primeiro resultado
-    let totalGainsLossesColor = ''; // Cor neutra para ganho/perda inicialmente
+    let formattedRoundResult = "-";
+    let roundResultColor = '';
+    let totalGainsLossesColor = '';
 
     if (lastGame) {
         let roundProfitOrLoss = lastGame.profitOrLoss;
@@ -515,89 +495,58 @@ function updateInfo(applyColorToLabels = true, designOption = 2, applyBackground
         ? 'R$' + totalGainsLosses.toFixed(2)
         : (totalGainsLosses > 0 ? '+R$' : '-R$') + Math.abs(totalGainsLosses).toFixed(2);
 
-    // Para evitar que o campo "Ganho/Perda" comece verde com valor 0, aplicamos cor apenas após a primeira rodada.
-    if (rodadas === 0) {
-        totalGainsLossesColor = ''; // Deixar neutro até a primeira rodada
-    } else {
+    if (rodadas > 0) {
         totalGainsLossesColor = totalGainsLosses >= 0 ? 'green' : 'red';
     }
 
-    // Atualizar os elementos com base no design selecionado
-    if (designOption === 1) {
-        document.getElementById('roundResult').textContent = formattedRoundResult;
-        document.getElementById('totalGainsLosses').textContent = formattedTotalGainsLosses;
-    } else if (designOption === 2) {
-        document.getElementById('roundResult2').textContent = formattedRoundResult;
-        document.getElementById('totalGainsLosses2').textContent = formattedTotalGainsLosses;
+    // Configura a cor conforme o grupo de controle
+    switch (userControlGroup) {
+        case 1: // Sem mudança nas cores
+            roundResultColor = '';
+            totalGainsLossesColor = '';
+            break;
+        case 2: // Com mudança nas cores: verde para positivo, vermelho para negativo
+            break;
+        case 3: // Com mudança nas cores apenas em vermelho para valores negativos
+            roundResultColor = roundResultColor === 'red' ? 'red' : '';
+            totalGainsLossesColor = totalGainsLossesColor === 'red' ? 'red' : '';
+            break;
+        case 4: // Com mudança nas cores apenas em verde para valores positivos
+            roundResultColor = roundResultColor === 'green' ? 'green' : '';
+            totalGainsLossesColor = totalGainsLossesColor === 'green' ? 'green' : '';
+            break;
     }
 
-    // Aplicar cores com base no grupo de controle
-    if (userControlGroup == 3) {
-        if (applyColorToLabels) {
-            // Aplicar cor aos rótulos e aos valores
-            if (designOption === 1) {
-                document.getElementById('resultado-label').style.color = roundResultColor;
-                document.getElementById('ganhoPerda-label').style.color = totalGainsLossesColor;
-                document.getElementById('roundResult').style.color = roundResultColor;
-                document.getElementById('totalGainsLosses').style.color = totalGainsLossesColor;
-            } else if (designOption === 2) {
-                document.getElementById('resultado-label2').style.color = roundResultColor;
-                document.getElementById('ganhoPerda-label2').style.color = totalGainsLossesColor;
-                document.getElementById('roundResult2').style.color = roundResultColor;
-                document.getElementById('totalGainsLosses2').style.color = totalGainsLossesColor;
-            }
-        } else {
-            // Aplicar cor apenas aos valores
-            if (designOption === 1) {
-                document.getElementById('roundResult').style.color = roundResultColor;
-                document.getElementById('totalGainsLosses').style.color = totalGainsLossesColor;
-                document.getElementById('resultado-label').style.color = '';
-                document.getElementById('ganhoPerda-label').style.color = '';
-            } else if (designOption === 2) {
-                document.getElementById('roundResult2').style.color = roundResultColor;
-                document.getElementById('totalGainsLosses2').style.color = totalGainsLossesColor;
-                document.getElementById('resultado-label2').style.color = '';
-                document.getElementById('ganhoPerda-label2').style.color = '';
-            }
-        }
+    // Atualiza os elementos com base no design selecionado
+    document.getElementById('roundResult').textContent = formattedRoundResult;
+    document.getElementById('totalGainsLosses').textContent = formattedTotalGainsLosses;
 
-        // Aplicar cor de fundo nas seções com base na variável applyBackgroundToSections
-        if (applyBackgroundToSections && lastGame) {
-            if (designOption === 2) {
-                const resultadoSection = document.getElementById('resultado-section');
-                const ganhoPerdaSection = document.getElementById('ganho-perda-section');
-
-                // Remover classes de fundo existentes
-                resultadoSection.classList.remove('green-background', 'red-background');
-                ganhoPerdaSection.classList.remove('green-background', 'red-background');
-
-                // Aplicar fundo colorido com base nos resultados
-                resultadoSection.classList.add(lastGame.profitOrLoss > 0 ? 'green-background' : 'red-background');
-                ganhoPerdaSection.classList.add(totalGainsLosses >= 0 ? 'green-background' : 'red-background');
-            }
-        } else {
-            // Remover fundo colorido se a variável applyBackgroundToSections for false
-            if (designOption === 2) {
-                document.getElementById('resultado-section').classList.remove('green-background', 'red-background');
-                document.getElementById('ganho-perda-section').classList.remove('green-background', 'red-background');
-            }
-        }
-
+    // Aplica cores conforme as configurações
+    if (applyColorToLabels) {
+        document.getElementById('resultado-label').style.color = roundResultColor;
+        document.getElementById('ganhoPerda-label').style.color = totalGainsLossesColor;
     } else {
-        // Restaurar a cor padrão para os outros grupos
-        if (designOption === 1) {
-            document.getElementById('roundResult').style.color = '';
-            document.getElementById('totalGainsLosses').style.color = '';
-            document.getElementById('resultado-label').style.color = '';
-            document.getElementById('ganhoPerda-label').style.color = '';
-        } else if (designOption === 2) {
-            document.getElementById('roundResult2').style.color = '';
-            document.getElementById('totalGainsLosses2').style.color = '';
-            document.getElementById('resultado-label2').style.color = '';
-            document.getElementById('ganhoPerda-label2').style.color = '';
-            document.getElementById('resultado-section').classList.remove('green-background', 'red-background');
-            document.getElementById('ganho-perda-section').classList.remove('green-background', 'red-background');
-        }
+        document.getElementById('resultado-label').style.color = '';
+        document.getElementById('ganhoPerda-label').style.color = '';
+    }
+
+    document.getElementById('roundResult').style.color = roundResultColor;
+    document.getElementById('totalGainsLosses').style.color = totalGainsLossesColor;
+
+    // Aplica cor de fundo nas seções
+    if (applyBackgroundToSections && lastGame) {
+        const resultadoSection = document.getElementById('resultado-section');
+        const ganhoPerdaSection = document.getElementById('ganho-perda-section');
+        resultadoSection.classList.remove('green-background', 'red-background');
+        ganhoPerdaSection.classList.remove('green-background', 'red-background');
+
+        if (roundResultColor === 'green') resultadoSection.classList.add('green-background');
+        if (roundResultColor === 'red') resultadoSection.classList.add('red-background');
+        if (totalGainsLossesColor === 'green') ganhoPerdaSection.classList.add('green-background');
+        if (totalGainsLossesColor === 'red') ganhoPerdaSection.classList.add('red-background');
+    } else {
+        document.getElementById('resultado-section').classList.remove('green-background', 'red-background');
+        document.getElementById('ganho-perda-section').classList.remove('green-background', 'red-background');
     }
 }
 
@@ -628,22 +577,19 @@ document.getElementById('clearDataBtn').addEventListener('click', function() {
     }
 });
 
-
-// Função para exportar os dados da tabela para um arquivo Excel
 document.getElementById('exportExcelBtn').addEventListener('click', function() {
     // Verifica se há dados no localStorage
     const storedHistory = localStorage.getItem(`${user}_history`);
     if (!storedHistory) {
-        alert('Não há dados para exportar.');
+        alert('Não há dados para enviar.');
         return;
     }
 
+    // Cria o arquivo Excel em base64
     let table = document.getElementById('statsTable');
-    let wb = XLSX.utils.table_to_book(table, {sheet: "Estatísticas"});
-
-    // Adiciona uma nova aba com informações do jogador
+    let wb = XLSX.utils.table_to_book(table, { sheet: "Estatísticas" });
     let wsInfo = XLSX.utils.json_to_sheet([
-        { Informação: "Nome do Jogador", Valor: user || "Não Logado" },
+        { Informação: "Nome do Jogador", Valor: user || "Convidado" },
         { Informação: "Grupo do Jogador", Valor: userControlGroup },
         { Informação: "Saldo Inicial", Valor: initialBalance },
         { Informação: "Número de Rodadas", Valor: rodadas },
@@ -652,27 +598,20 @@ document.getElementById('exportExcelBtn').addEventListener('click', function() {
     ]);
     XLSX.utils.book_append_sheet(wb, wsInfo, "Informações");
 
-    let wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'binary'});
+    // Converte o arquivo Excel para base64
+    let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
 
-    function s2ab(s) {
-        let buf = new ArrayBuffer(s.length);
-        let view = new Uint8Array(buf);
-        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-        return buf;
-    }
-
-    // Obtém a data e hora atual
-    let now = new Date();
-    let day = String(now.getDate()).padStart(2, '0');
-    let month = String(now.getMonth() + 1).padStart(2, '0'); // Meses começam do 0
-    let year = now.getFullYear();
-    let hours = String(now.getHours()).padStart(2, '0');
-    let minutes = String(now.getMinutes()).padStart(2, '0');
-    let seconds = String(now.getSeconds()).padStart(2, '0');
-    
-    // Personaliza o nome do arquivo com o nome do jogador, data e hora
-    let fileName = `${user || 'Convidado'}_grupo${userControlGroup}_estatisticas_${day}-${month}-${year}_${hours}-${minutes}-${seconds}.xlsx`;
-    saveAs(new Blob([s2ab(wbout)], {type: "application/octet-stream"}), fileName);
+    // Envia o arquivo para o Google Apps Script
+    fetch("https://script.google.com/macros/s/AKfycbygquBgF-q-gUYwtXzC6lSZEdK9Ug3wIveRtEXlzNnZbHEGVBg0EwxwN8h9EqBHfLw/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `file=${encodeURIComponent(wbout)}`
+    })
+    .then(response => response.text())
+    .then(data => {
+        alert(data); // Mensagem de sucesso ou erro
+    })
+    .catch(error => alert("Erro ao enviar os dados: " + error));
 });
 
 function showNotification(message, result) {
@@ -734,21 +673,3 @@ function toggleRiggedWheel() {
 
 // Adiciona o evento de clique à div com o ID 'userDisplay'
 document.getElementById('userDisplay').addEventListener('click', toggleRiggedWheel);
-
-function updateUIForControlGroup() {
-    if (userControlGroup == 1) {
-        // Grupo 1: Sem a variável ganho/perda aparente e sem mudança na cor
-        document.getElementById('totalGainsLosses').parentElement.style.display = 'none';
-        document.getElementById('roundResult').style.color = '';
-        document.getElementById('totalGainsLosses').style.color = '';
-    } else if (userControlGroup == 2) {
-        // Grupo 2: Variáveis aparentes, porém sem mudança na cor
-        document.getElementById('totalGainsLosses').parentElement.style.display = '';
-        document.getElementById('roundResult').style.color = '';
-        document.getElementById('totalGainsLosses').style.color = '';
-    } else if (userControlGroup == 3) {
-        // Grupo 3: Variáveis aparentes, com mudança na cor em resultado e ganho/perda
-        document.getElementById('totalGainsLosses').parentElement.style.display = '';
-        // A mudança de cor será gerenciada na função updateInfo()
-    }
-}

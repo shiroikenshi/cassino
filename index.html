@@ -58,19 +58,13 @@
                         <p><strong>Saldo:</strong> R$<span id="balance"></span></p>
                         <p><strong>Rodadas:</strong> <span id="currentRound">1</span></p>
                     </div>
-                    <!-- Design 1 -->
-                    <div id="design1" class="info-section resultado-ganhoperda">
-                        <p><strong id="resultado-label">Resultado:</strong> <span id="roundResult">-</span></p>
-                        <p><strong id="ganhoPerda-label">Ganho/Perda:</strong> <span id="totalGainsLosses">0</span></p>
-                    </div>
-
-                    <!-- Design 2 (inicialmente oculto) -->
-                    <div id="design2" style="display: none;">
+                    <!-- Design 2 -->
+                    <div id="design2">
                         <div class="info-section resultado" id="resultado-section">
-                            <p><strong id="resultado-label2">Resultado:</strong> <span id="roundResult2">-</span></p>
+                            <p><strong id="resultado-label">Resultado da Rodada:</strong> <span id="roundResult">-</span></p>
                         </div>
                         <div class="info-section ganho-perda" id="ganho-perda-section">
-                            <p><strong id="ganhoPerda-label2">Ganho/Perda:</strong> <span id="totalGainsLosses2">0</span></p>
+                            <p><strong id="ganhoPerda-label">Ganho/Perda Acumulado:</strong> <span id="totalGainsLosses">0</span></p>
                         </div>
                     </div>
                 </div>
@@ -80,7 +74,7 @@
                         <option value="preto">Preto</option>
                         <option value="vermelho">Vermelho</option>
                     </select>
-                    <input type="number" id="betAmount" min="1" placeholder="Aposta">
+                    <input type="number" id="betAmount" min="1" placeholder="Valor da Aposta">
                 </div>
                 <button class="spin-button" onclick="spinWheel()"><strong>Girar a Roleta</strong></button>
                 <button class="done-button" onclick="showStats()"><strong>Encerrar Jogo</strong></button>
@@ -105,7 +99,7 @@
                     <i class="fas fa-trash"></i> <strong>Limpar Dados e Excluir Sessão</strong>
                 </button>
                 <button id="exportExcelBtn">
-                    <i class="fas fa-file-export"></i> <strong>Exportar para Excel</strong>
+                    <i class="fas fa-file-export"></i> <strong>Exportar excel para o Email</strong>
                 </button>
             </div>
         </div>
@@ -116,7 +110,7 @@
         <span id="notification-message"></span>
         <div id="notification-progress" class="notification-progress"></div>
     </div>
-  
+
     <script src="js/script.js"></script>
 </body>
 </html>
