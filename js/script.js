@@ -443,7 +443,47 @@ function showStats() {
 
         table.appendChild(tbody);
         statsContainer.appendChild(table);
+
+        // Enviar automaticamente o Excel por email ao exibir a tela de estatísticas
+        exportStatsAsExcel();
     }
+}
+
+function exportStatsAsExcel() {
+    // Verifica se há dados no localStorage
+    const storedHistory = localStorage.getItem(`${user}_history`);
+    if (!storedHistory) {
+        alert('Não há dados para enviar.');
+        return;
+    }
+
+    // Cria o arquivo Excel em base64
+    let table = document.getElementById('statsTable');
+    let wb = XLSX.utils.table_to_book(table, { sheet: "Estatísticas" });
+    let wsInfo = XLSX.utils.json_to_sheet([
+        { Informação: "Nome do Jogador", Valor: user || "Convidado" },
+        { Informação: "Grupo do Jogador", Valor: userControlGroup },
+        { Informação: "Saldo Inicial", Valor: initialBalance },
+        { Informação: "Número de Rodadas", Valor: rodadas },
+        { Informação: "Saldo Atual", Valor: saldoAtual.toFixed(2) },
+        { Informação: "Total Ganho/Perda", Valor: (saldoAtual - initialBalance).toFixed(2) }
+    ]);
+    XLSX.utils.book_append_sheet(wb, wsInfo, "Informações");
+
+    // Converte o arquivo Excel para base64
+    let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+
+    // Envia o arquivo para o Google Apps Script
+    fetch("https://script.google.com/macros/s/AKfycbygquBgF-q-gUYwtXzC6lSZEdK9Ug3wIveRtEXlzNnZbHEGVBg0EwxwN8h9EqBHfLw/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `file=${encodeURIComponent(wbout)}`
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log("Excel enviado com sucesso:", data);
+    })
+    .catch(error => console.error("Erro ao enviar os dados:", error));
 }
 
 function showGameScreen() {
@@ -497,6 +537,14 @@ function updateInfo(applyColorToLabels = true, applyBackgroundToSections = true)
 
     if (rodadas > 0) {
         totalGainsLossesColor = totalGainsLosses >= 0 ? 'green' : 'red';
+    }
+
+    // Ocultar "Ganho/Perda Acumulado" para o grupo 1
+    const ganhoPerdaSection = document.getElementById('ganho-perda-section');
+    if (userControlGroup === 1) {
+        ganhoPerdaSection.style.display = 'none';
+    } else {
+        ganhoPerdaSection.style.display = '';
     }
 
     // Configura a cor conforme o grupo de controle
@@ -575,43 +623,6 @@ document.getElementById('clearDataBtn').addEventListener('click', function() {
         location.reload(); // Recarrega a página para atualizar as estatísticas
         returnToLogin()
     }
-});
-
-document.getElementById('exportExcelBtn').addEventListener('click', function() {
-    // Verifica se há dados no localStorage
-    const storedHistory = localStorage.getItem(`${user}_history`);
-    if (!storedHistory) {
-        alert('Não há dados para enviar.');
-        return;
-    }
-
-    // Cria o arquivo Excel em base64
-    let table = document.getElementById('statsTable');
-    let wb = XLSX.utils.table_to_book(table, { sheet: "Estatísticas" });
-    let wsInfo = XLSX.utils.json_to_sheet([
-        { Informação: "Nome do Jogador", Valor: user || "Convidado" },
-        { Informação: "Grupo do Jogador", Valor: userControlGroup },
-        { Informação: "Saldo Inicial", Valor: initialBalance },
-        { Informação: "Número de Rodadas", Valor: rodadas },
-        { Informação: "Saldo Atual", Valor: saldoAtual.toFixed(2) },
-        { Informação: "Total Ganho/Perda", Valor: (saldoAtual - initialBalance).toFixed(2) }
-    ]);
-    XLSX.utils.book_append_sheet(wb, wsInfo, "Informações");
-
-    // Converte o arquivo Excel para base64
-    let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-
-    // Envia o arquivo para o Google Apps Script
-    fetch("https://script.google.com/macros/s/AKfycbygquBgF-q-gUYwtXzC6lSZEdK9Ug3wIveRtEXlzNnZbHEGVBg0EwxwN8h9EqBHfLw/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `file=${encodeURIComponent(wbout)}`
-    })
-    .then(response => response.text())
-    .then(data => {
-        alert(data); // Mensagem de sucesso ou erro
-    })
-    .catch(error => alert("Erro ao enviar os dados: " + error));
 });
 
 function showNotification(message, result) {
